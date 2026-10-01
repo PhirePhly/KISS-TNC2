@@ -105,18 +105,34 @@ static void receive_command(uint8_t byte)
     }
 }
 
-static void receive_hardware(uint8_t byte)
+static void receive_hardware_feature(uint8_t feature)
 {
-    if (byte >= 0xFEu) {
-        g_state.cts_control = byte - 0xFEu;
-    } else if (byte >= 0xFCu) {
-        /* Reserved by the original firmware. */
-    } else if (byte >= 0xF8u) {
-        g_state.soft_dcd = byte - 0xF8u;
-    } else if (byte < 0x20u) {
-        g_state.hardware_port = byte + 0xA0u;
-        g_state.kiss_state = KISS_HARDWARE_DATA;
+    if (feature < KISS_HW_SOFTWARE_DCD || feature > KISS_HW_CTS) {
+        kiss_reset();
         return;
+    }
+    g_state.hardware_feature = feature;
+    g_state.kiss_state = KISS_HARDWARE_VALUE;
+}
+
+static void receive_hardware_value(uint8_t value)
+{
+    if (value > 1u) {
+        kiss_reset();
+        return;
+    }
+    switch (g_state.hardware_feature) {
+    case KISS_HW_SOFTWARE_DCD:
+        g_state.software_dcd = value;
+        break;
+    case KISS_HW_HARDWARE_DCD:
+        g_state.hardware_dcd = value;
+        break;
+    case KISS_HW_CTS:
+        g_state.cts_control = value;
+        break;
+    default:
+        break;
     }
     kiss_reset();
 }
@@ -181,13 +197,10 @@ void kiss_receive_byte(uint8_t byte)
         kiss_reset();
         break;
     case KISS_HARDWARE:
-        receive_hardware(byte);
+        receive_hardware_feature(byte);
         break;
-    case KISS_HARDWARE_DATA:
-#ifndef HOST_TEST
-        hardware_write_extension(g_state.hardware_port, byte);
-#endif
-        kiss_reset();
+    case KISS_HARDWARE_VALUE:
+        receive_hardware_value(byte);
         break;
     default:
         kiss_reset();

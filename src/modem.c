@@ -70,10 +70,10 @@ void modem_end_frame(uint8_t rr1)
 
 static bool channel_busy(void)
 {
-    if ((g_state.soft_dcd & DCD_SOFTWARE) && g_state.rx_state) {
+    if (g_state.software_dcd && g_state.rx_state) {
         return true;
     }
-    if ((g_state.soft_dcd & DCD_HARDWARE) && (g_state.a_rr0 & RR0_DCD)) {
+    if (g_state.hardware_dcd && (g_state.a_rr0 & RR0_DCD)) {
         return true;
     }
     return false;

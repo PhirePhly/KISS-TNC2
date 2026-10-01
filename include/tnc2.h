@@ -35,8 +35,9 @@ typedef uint8_t bool;
 
 #define WR5_RTS 0x02u
 #define WR5_LED 0x80u
-#define DCD_HARDWARE 0x01u
-#define DCD_SOFTWARE 0x02u
+#define KISS_HW_SOFTWARE_DCD 1u
+#define KISS_HW_HARDWARE_DCD 2u
+#define KISS_HW_CTS 3u
 #define A_WR5_DEFAULT 0xE9u
 #define B_WR5_DEFAULT 0xEAu
 
@@ -74,7 +75,7 @@ typedef enum {
     KISS_TXTAIL = 40,
     KISS_FULLDUPLEX = 50,
     KISS_HARDWARE = 60,
-    KISS_HARDWARE_DATA = 61
+    KISS_HARDWARE_VALUE = 61
 } KissState;
 
 typedef struct {
@@ -84,7 +85,8 @@ typedef struct {
     uint8_t txtail;
     uint8_t full_duplex;
     uint8_t cts_control;
-    uint8_t soft_dcd;
+    uint8_t software_dcd;
+    uint8_t hardware_dcd;
 
     volatile uint8_t tx_state;
     volatile uint8_t tx_timer;
@@ -104,7 +106,7 @@ typedef struct {
     uint8_t in_allocated;
     BufferRef in_head;
     BufferRef in_current;
-    uint8_t hardware_port;
+    uint8_t hardware_feature;
 
     volatile uint8_t host_out_started;
     volatile uint8_t host_escape;
@@ -184,7 +186,6 @@ void hardware_a_ctrl_write(uint8_t value);
 void hardware_b_ctrl_write(uint8_t value);
 void hardware_a_data_write(uint8_t value);
 void hardware_b_data_write(uint8_t value);
-void hardware_write_extension(uint8_t port, uint8_t value);
 void hardware_sta(bool on);
 void hardware_con(bool on);
 void hardware_ptt(bool on);

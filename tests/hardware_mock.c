@@ -39,12 +39,6 @@ void hardware_b_data_write(uint8_t value)
     b_data = value;
 }
 
-void hardware_write_extension(uint8_t port, uint8_t value)
-{
-    (void)port;
-    (void)value;
-}
-
 void hardware_sta(bool on) { (void)on; }
 void hardware_con(bool on) { (void)on; }
 void hardware_ptt(bool on) { (void)on; }

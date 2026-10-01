@@ -27,7 +27,9 @@ static void test_defaults_and_parameters(void)
     assert(g_state.slottime == 5);
     assert(g_state.txtail == 3);
     assert(g_state.full_duplex == 0);
-    assert(g_state.soft_dcd == DCD_SOFTWARE);
+    assert(g_state.software_dcd == 1);
+    assert(g_state.hardware_dcd == 0);
+    assert(g_state.cts_control == 0);
 
     send_parameter(1, 42);
     send_parameter(2, 127);
@@ -39,6 +41,34 @@ static void test_defaults_and_parameters(void)
     assert(g_state.slottime == 9);
     assert(g_state.txtail == 11);
     assert(g_state.full_duplex == 1);
+}
+
+static void send_hardware(uint8_t feature, uint8_t value)
+{
+    kiss_receive_byte(FEND);
+    kiss_receive_byte(6);
+    kiss_receive_byte(feature);
+    kiss_receive_byte(value);
+    kiss_receive_byte(FEND);
+}
+
+static void test_hardware_features(void)
+{
+    reset_fixture();
+    send_hardware(KISS_HW_SOFTWARE_DCD, 0);
+    send_hardware(KISS_HW_HARDWARE_DCD, 1);
+    send_hardware(KISS_HW_CTS, 1);
+    assert(g_state.software_dcd == 0);
+    assert(g_state.hardware_dcd == 1);
+    assert(g_state.cts_control == 1);
+
+    send_hardware(KISS_HW_HARDWARE_DCD, 0);
+    send_hardware(KISS_HW_CTS, 0);
+    send_hardware(KISS_HW_SOFTWARE_DCD, 1);
+    assert(g_state.software_dcd == 1);
+    assert(g_state.hardware_dcd == 0);
+    assert(g_state.cts_control == 0);
+    assert(g_state.kiss_state == KISS_COMMAND);
 }
 
 static void test_kiss_unescaping(void)
@@ -177,6 +207,7 @@ static void test_host_slip_encoding(void)
 int main(void)
 {
     test_defaults_and_parameters();
+    test_hardware_features();
     test_kiss_unescaping();
     test_unknown_escape_is_discarded();
     test_multibuffer_frame();

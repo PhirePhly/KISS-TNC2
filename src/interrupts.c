@@ -178,7 +178,7 @@ void isr_a_special(void)
     hardware_a_ctrl_write(0xD9);
 
     if (!g_state.full_duplex && g_state.tx_state < TX_DELAY &&
-        (g_state.soft_dcd & DCD_SOFTWARE)) {
+        g_state.software_dcd) {
         g_state.tx_state = TX_SLOT_WAIT;
         g_state.tx_timer = g_state.slottime;
     }

@@ -25,7 +25,7 @@ void state_reset(void)
     g_state.persistence = 63;
     g_state.slottime = 5;
     g_state.txtail = 3;
-    g_state.soft_dcd = DCD_SOFTWARE;
+    g_state.software_dcd = 1;
     g_state.a_rr0 = RR0_CTS;
     g_state.a_wr5 = A_WR5_DEFAULT;
     g_state.b_wr5 = B_WR5_DEFAULT;

@@ -12,16 +12,15 @@ Z80 compiler. `KISS-TNC.asm` is retained as the behavioral reference.
 - SIO channel B sync/hunt input clocked to provide the original 100 Hz timer
 
 A cold start enters KISS mode directly. There is no terminal or command mode.
-The firmware preserves KISS data and parameter commands 0 through 5 and the
-legacy command 6 hardware extension. [KISS.md](KISS.md) documents every
-command, argument, and default. Command 6 can write I/O ports
-`0xA0` through `0xBF`; do not expose it to untrusted hosts.
+The firmware preserves KISS data and parameter commands 0 through 5.
+Command 6 separately enables or disables software DCD, hardware DCD, and CTS
+flow control. [KISS.md](KISS.md) documents every command, argument, and
+default.
 
 Half-duplex transmission defers to software DCD by default. The channel is
 busy while the SIO has left HDLC hunt mode, so unsquelched audio does not
-hold off transmission merely because hardware DCD is asserted. Command 6
-values `0xF8` through `0xFB` select neither, hardware, software, or both DCD
-sources.
+hold off transmission merely because hardware DCD is asserted. `6 2 1` enables
+the hardware DCD check as well, and `6 1 0` disables software DCD.
 
 ## Build
 

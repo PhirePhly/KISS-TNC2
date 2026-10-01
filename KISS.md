@@ -40,7 +40,7 @@ byte retained by the SIO is removed before transmission.
 | 3 | Slot time | One byte, 10 ms units |
 | 4 | TX tail | One byte, 10 ms units |
 | 5 | Full duplex | One byte |
-| 6 | Set hardware | One byte, sometimes followed by a data byte |
+| 6 | Set hardware | Feature byte, then `0` or `1` |
 
 ### 0: Data
 
@@ -78,20 +78,18 @@ slot timing.
 
 ### 6: Set hardware
 
-| Argument | Effect |
-| --- | --- |
-| `0x00`–`0x1F` | Select I/O port `argument + 0xA0`; the next byte is written there |
-| `0x20`–`0xF7` | Ignored |
-| `0xF8` | Ignore both DCD sources |
-| `0xF9` | Use hardware DCD |
-| `0xFA` | Use software DCD; this is the default |
-| `0xFB` | Use both hardware and software DCD |
-| `0xFC`–`0xFD` | Reserved and ignored |
-| `0xFE` | Disable CTS flow control; this is the default |
-| `0xFF` | Require modem CTS after TX delay before sending |
+Command 6 takes a feature selector and then `0` to disable that feature or
+`1` to enable it. Any other feature or value discards the command. The two
+DCD features are independent.
 
-The raw-port form writes one byte to one of the addresses `0xA0`–`0xBF`.
-Do not expose command 6 to an untrusted host.
+| Feature | Name | `1` enables | `0` disables |
+| --- | --- | --- | --- |
+| 1 | Software DCD | HDLC-hunt carrier check; this is the default | No software carrier check |
+| 2 | Hardware DCD | SIO DCD carrier check | No hardware carrier check; this is the default |
+| 3 | CTS flow control | Wait for modem CTS after TX delay | Send without waiting for CTS; this is the default |
+
+For example, `6 1 1` enables software DCD, `6 1 0` disables it, and `6 2 1`
+enables hardware DCD. Both DCD features may be enabled together.
 
 Software DCD reports busy while the SIO has left HDLC hunt mode. It detects
 flag synchronization rather than validating a complete frame, but it does not
@@ -107,5 +105,6 @@ when hardware DCD remains asserted.
 | Slot time | 50 ms | `3 5` |
 | TX tail | 30 ms | `4 3` |
 | Duplex | Half | `5 0` |
-| DCD source | Software | `6 0xFA` |
-| CTS flow control | Off | `6 0xFE` |
+| Software DCD | On | `6 1 1` |
+| Hardware DCD | Off | `6 2 0` |
+| CTS flow control | Off | `6 3 0` |
