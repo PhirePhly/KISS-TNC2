@@ -21,10 +21,10 @@ void state_reset(void)
         p[i] = 0;
     }
 
-    g_state.txdelay = 33;
+    g_state.txdelay = 30;
     g_state.persistence = 63;
-    g_state.slottime = 5;
-    g_state.txtail = 3;
+    g_state.slottime = 10;
+    g_state.txtail = 2;
     g_state.software_dcd = 1;
     g_state.a_rr0 = RR0_CTS;
     g_state.a_wr5 = A_WR5_DEFAULT;

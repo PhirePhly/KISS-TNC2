@@ -74,7 +74,7 @@ the downward-growing stack.
 1. Program `build/kiss-tnc2.bin` into a 32 KiB ROM and cold reset.
 2. Confirm both LEDs perform the startup sequence and finish off.
 3. At the host serial rate configured by the TNC-2 clocking, send a KISS data
-   frame and verify TX delay, PTT assertion, HDLC transmission, tail time, and
+   frame and verify TX delay, PTT assertion, HDLC transmission, closing flags, and
    PTT release.
 4. Receive valid and deliberately bad-CRC HDLC frames; only the valid frame
    should appear on the host with KISS port byte zero and correct escaping.

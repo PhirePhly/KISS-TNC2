@@ -123,6 +123,7 @@ typedef struct {
     uint8_t host_break;
     uint8_t tick_divider;
     uint8_t tick_level;
+    uint8_t tail_bits;
 } FirmwareState;
 
 _Static_assert(sizeof(Buffer) == 128u, "Buffer nodes must remain 128 bytes");
@@ -159,6 +160,8 @@ void kiss_reset(void);
 void kiss_receive_byte(uint8_t byte);
 void kiss_abort_frame(void);
 
+void modem_begin_tail(void);
+void modem_tail_bit(void);
 void modem_service(void);
 void host_service(void);
 void modem_receive_byte(uint8_t byte);

@@ -102,8 +102,7 @@ static void start_modem_frame(void)
         g_state.tx_started = 0;
         g_state.tx_chain = INVALID_BUFFER;
         hardware_a_ctrl_write(0x28);
-        g_state.tx_timer = g_state.txtail;
-        g_state.tx_state = TX_TAIL;
+        modem_begin_tail();
         hardware_irq_enable();
         return;
     }
@@ -112,6 +111,25 @@ static void start_modem_frame(void)
     g_state.tx_started = 1;
     hardware_a_ctrl_write(0xC0);
     hardware_irq_enable();
+}
+
+void modem_begin_tail(void)
+{
+    /* tx_timer counts HDLC flags (0x7E), not 10 ms ticks, during TX_TAIL. */
+    g_state.tail_bits = 0;
+    g_state.tx_timer = g_state.txtail;
+    g_state.tx_state = TX_TAIL;
+}
+
+void modem_tail_bit(void)
+{
+    if (g_state.tx_state != TX_TAIL || !g_state.tx_timer) {
+        return;
+    }
+    if (++g_state.tail_bits == 8u) {
+        g_state.tail_bits = 0;
+        --g_state.tx_timer;
+    }
 }
 
 void modem_service(void)

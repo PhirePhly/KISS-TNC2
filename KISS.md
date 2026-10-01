@@ -38,7 +38,7 @@ byte retained by the SIO is removed before transmission.
 | 1 | TX delay | One byte, 10 ms units |
 | 2 | Persistence | One byte, 0–255 |
 | 3 | Slot time | One byte, 10 ms units |
-| 4 | TX tail | One byte, 10 ms units |
+| 4 | TX tail | One byte, number of closing HDLC flags |
 | 5 | Full duplex | One byte |
 | 6 | Set hardware | Feature byte, then `0` or `1` |
 
@@ -50,8 +50,8 @@ data bytes is ignored.
 
 ### 1: TX delay
 
-Time between asserting PTT and sending the first byte. The default is 33,
-or 330 ms. The timer has 10 ms resolution.
+Time between asserting PTT and sending the first byte. The default is 30,
+or 300 ms. The timer has 10 ms resolution.
 
 ### 2: Persistence
 
@@ -63,12 +63,15 @@ always passes; smaller values defer for one slot time before trying again.
 ### 3: Slot time
 
 Delay used after losing persistence or finding the channel busy. The default
-is 5, or 50 ms.
+is 10, or 100 ms.
 
 ### 4: TX tail
 
-Time PTT remains asserted after the final frame. The default is 3, or 30 ms.
-The original firmware notes that 300-baud operation needs 11.
+Number of HDLC flags (`0x7E`) sent after the closing CRC before PTT is
+released. The default is 2. Each flag is eight bits on the 1200 Hz clock, so
+this count is independent of the 10 ms timer used by TX delay and slot time.
+A value of 0 releases PTT as soon as the SIO finishes the frame and begins
+sending flags.
 
 ### 5: Full duplex
 
@@ -100,10 +103,10 @@ when hardware DCD remains asserted.
 
 | Setting | Default | Equivalent command |
 | --- | --- | --- |
-| TX delay | 330 ms | `1 33` |
+| TX delay | 300 ms | `1 30` |
 | Persistence | 63 | `2 63` |
-| Slot time | 50 ms | `3 5` |
-| TX tail | 30 ms | `4 3` |
+| Slot time | 100 ms | `3 10` |
+| TX tail | 2 HDLC flags | `4 2` |
 | Duplex | Half | `5 0` |
 | Software DCD | On | `6 1 1` |
 | Hardware DCD | Off | `6 2 0` |

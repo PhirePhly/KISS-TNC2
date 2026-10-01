@@ -22,10 +22,10 @@ static void send_parameter(uint8_t command, uint8_t value)
 static void test_defaults_and_parameters(void)
 {
     reset_fixture();
-    assert(g_state.txdelay == 33);
+    assert(g_state.txdelay == 30);
     assert(g_state.persistence == 63);
-    assert(g_state.slottime == 5);
-    assert(g_state.txtail == 3);
+    assert(g_state.slottime == 10);
+    assert(g_state.txtail == 2);
     assert(g_state.full_duplex == 0);
     assert(g_state.software_dcd == 1);
     assert(g_state.hardware_dcd == 0);
@@ -173,6 +173,29 @@ static void test_queue_wraparound(void)
     }
 }
 
+static void test_tail_counts_hdlc_flags(void)
+{
+    uint8_t i;
+
+    reset_fixture();
+    g_state.txtail = 2;
+    modem_begin_tail();
+    assert(g_state.tx_state == TX_TAIL);
+    assert(g_state.tx_timer == 2);
+
+    for (i = 0; i < 7u; ++i) {
+        modem_tail_bit();
+    }
+    assert(g_state.tx_timer == 2);
+    modem_tail_bit();
+    assert(g_state.tx_timer == 1);
+
+    for (i = 0; i < 8u; ++i) {
+        modem_tail_bit();
+    }
+    assert(g_state.tx_timer == 0);
+}
+
 static void test_host_slip_encoding(void)
 {
     static const uint8_t expected[] = {
@@ -213,6 +236,7 @@ int main(void)
     test_multibuffer_frame();
     test_buffer_exhaustion_recovers();
     test_queue_wraparound();
+    test_tail_counts_hdlc_flags();
     test_host_slip_encoding();
     puts("firmware host tests: PASS");
     return 0;

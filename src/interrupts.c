@@ -61,10 +61,11 @@ void isr_b_ext(void)
         return;
     }
     g_state.tick_level = level;
+    modem_tail_bit();
     ++g_state.tick_divider;
     if (g_state.tick_divider == 12u) {
         g_state.tick_divider = 0;
-        if (g_state.tx_timer) {
+        if (g_state.tx_timer && g_state.tx_state != TX_TAIL) {
             --g_state.tx_timer;
         }
     }
@@ -133,8 +134,7 @@ void isr_a_tx(void)
     }
 
     hardware_a_ctrl_write(0x28);
-    g_state.tx_timer = g_state.txtail;
-    g_state.tx_state = TX_TAIL;
+    modem_begin_tail();
 }
 
 void isr_a_ext(void)
