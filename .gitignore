@@ -1,0 +1,39 @@
+# Firmware and host-test build output
+/build/
+
+# SDCC/ASxxxx intermediates if generated outside build/
+*.rel
+*.lst
+*.sym
+*.noi
+*.lk
+*.map
+*.ihx
+*.mem
+*.rst
+*.adb
+*.cdb
+*.omf
+
+# Native compiler output
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+
+# Python tooling caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editor and operating-system state
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
