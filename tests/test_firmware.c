@@ -196,6 +196,21 @@ static void test_tail_counts_hdlc_flags(void)
     assert(g_state.tx_timer == 0);
 }
 
+static void test_boot_version_frame(void)
+{
+    static const uint8_t expected[] = {
+        FEND, 6, 'v', FESC, TFEND, 'x', FESC, TFESC, FEND
+    };
+    uint8_t i;
+
+    reset_fixture();
+    kiss_send_boot_version("v\xC0x\xDB");
+    assert(mock_b_output_length == sizeof(expected));
+    for (i = 0; i < sizeof(expected); ++i) {
+        assert(mock_b_output[i] == expected[i]);
+    }
+}
+
 static void test_host_slip_encoding(void)
 {
     static const uint8_t expected[] = {
@@ -237,6 +252,7 @@ int main(void)
     test_buffer_exhaustion_recovers();
     test_queue_wraparound();
     test_tail_counts_hdlc_flags();
+    test_boot_version_frame();
     test_host_slip_encoding();
     puts("firmware host tests: PASS");
     return 0;

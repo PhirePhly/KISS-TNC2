@@ -207,3 +207,42 @@ void kiss_receive_byte(uint8_t byte)
         break;
     }
 }
+
+static void host_wait_tx_empty(void)
+{
+    while ((hardware_b_ctrl_read() & RR0_TX_EMPTY) == 0) {
+    }
+}
+
+static void host_send_byte(uint8_t byte)
+{
+    host_wait_tx_empty();
+    hardware_b_data_write(byte);
+}
+
+static void host_send_escaped(uint8_t byte)
+{
+    if (byte == FEND) {
+        host_send_byte(FESC);
+        host_send_byte(TFEND);
+    } else if (byte == FESC) {
+        host_send_byte(FESC);
+        host_send_byte(TFESC);
+    } else {
+        host_send_byte(byte);
+    }
+}
+
+void kiss_send_boot_version(const char *version)
+{
+    host_send_byte(FEND);
+    host_send_byte(6);
+    while (*version != '\0') {
+        host_send_escaped((uint8_t)*version);
+        ++version;
+    }
+    host_send_byte(FEND);
+    host_wait_tx_empty();
+    /* Drop the transmit-empty interrupt caused by this polled frame. */
+    hardware_b_ctrl_write(0x28);
+}

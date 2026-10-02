@@ -159,6 +159,7 @@ bool out_queue_pop(BufferRef *ref);
 void kiss_reset(void);
 void kiss_receive_byte(uint8_t byte);
 void kiss_abort_frame(void);
+void kiss_send_boot_version(const char *version);
 
 void modem_begin_tail(void);
 void modem_tail_bit(void);

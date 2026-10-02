@@ -94,6 +94,12 @@ DCD features are independent.
 For example, `6 1 1` enables software DCD, `6 1 0` disables it, and `6 2 1`
 enables hardware DCD. Both DCD features may be enabled together.
 
+At startup, after the serial port is initialized and before the service loop,
+the TNC sends one unsolicited type 6 frame whose data is the firmware version
+string. The frame is `FEND`, `0x06`, the version bytes, `FEND`. Special bytes
+in the version are escaped with the normal `FESC` rules. The host should not
+treat this announcement as a command.
+
 Software DCD reports busy while the SIO has left HDLC hunt mode. It detects
 flag synchronization rather than validating a complete frame, but it does not
 follow an energy-only hardware carrier detector. This allows unsquelched audio

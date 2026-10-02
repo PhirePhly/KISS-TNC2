@@ -1,6 +1,6 @@
 #include "tnc2.h"
 
-const char firmware_version[] = "KISS TNC-2 C v1.0";
+const char firmware_version[] = "KWF KISS TNC-2 C v1.0";
 
 static void boot_led_dance(void)
 {
@@ -30,6 +30,7 @@ void firmware_boot(void)
 
     /* Flush any SIO state accumulated during the visible power-on test. */
     hardware_init();
+    kiss_send_boot_version(firmware_version);
     hardware_set_im2();
 
     for (;;) {
